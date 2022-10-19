@@ -33,12 +33,29 @@ module.exports = function(app, server) {
     },
   });
 
-  require("./socket/chat")(io);
+  /*Nous pouvons utiliser la constante io pour le websocket*/
+  io.on("connection", (socket) => {
+    socket.on("disconnect", () => {
+      console.log(`user ${socket.id} disconnected`);
+      io.emit("notification", `Bye ${socket.id}`);
+    });
+
+    console.log(`Connecté au client ${socket.id}`);
+    io.emit("notification", `Bonjour, ${socket.id}`);
+
+    socket.on("chat", (message) => {
+      console.log(`Jai recu : ${message.data}`);
+
+      io.emit("chat", message.data);
+    });
+  });
 
   app.use(function(req, res, next) {
     req.io = io;
     next();
   });
+
+  //   require("./socket/chat")(io);
 
   app.get("/messages", (req, res, next) => {
     schemaMessage
@@ -47,17 +64,19 @@ module.exports = function(app, server) {
       .catch((error) => res.status(400).json({ error }));
   });
 
-  app.post('/messages/new', (req, res, next) => {
-    const message = new schemaMessage({...req.body});
-    message.save().then(() => {
-      res.status(201).json({
-        message: 'Message envoyé'
+  app.post("/messages/new", (req, res, next) => {
+    const message = new schemaMessage({ ...req.body });
+    message
+      .save()
+      .then(() => {
+        res.status(201).json({
+          message: "Message envoyé",
+        });
       })
-    }).catch((error) => {
-      res.status(400).json({error})
-    })
+      .catch((error) => {
+        res.status(400).json({ error });
+      });
   });
-
 
   app.get("/users", (req, res, next) => {
     schemaUser
@@ -66,22 +85,31 @@ module.exports = function(app, server) {
       .catch((error) => res.status(400).json({ error }));
   });
 
-  app.post('/users/new', (req, res, next) => {
-    const user = new schemaUser({...req.body});
-    user.save().then(() => {
-      res.status(201).json({
-        message: 'Utilisateur créé'
+  app.get("/users/:id", (req, res, next) => {
+    schemaUser
+    .findOne({ _id: req.params.id })
+    .then((thing) => res.status(200).json(thing))
+    .catch((error) => res.status(400).json({ error }));
+});
+
+  app.post("/users/new", (req, res, next) => {
+    const user = new schemaUser({ ...req.body });
+    user
+      .save()
+      .then(() => {
+        res.status(201).json({
+          message: "Utilisateur créé",
+        });
       })
-    }).catch((error) => {
-      res.status(400).json({error})
-    })
+      .catch((error) => {
+        res.status(400).json({ error });
+      });
   });
-  
+
   app.delete("/messages/:id", (req, res, next) => {
     schemaMessage
       .deleteOne({ _id: req.params.id })
       .then(() => res.status(200).json({ message: "Message supprimé" }))
       .catch((error) => res.status(400).json({ error }));
   });
-  
 };
