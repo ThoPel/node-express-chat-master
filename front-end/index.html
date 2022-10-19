@@ -61,7 +61,7 @@
               <i class="fa fa-circle online"></i>
             </div>
             <div class="name">
-              <p id="user-name"></p>
+              <span id="user-name"></span>
               <i class="fa fa-angle-down"></i>
               <span class="availability">Available</span>
             </div>
@@ -137,21 +137,14 @@
     </div>
   </body>
   <script>
-	const userId = window.localStorage.getItem("id");
-    fetch("http://localhost:3000/users/"+userId, {
-      method: "get",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-
-      //make sure to serialize your JSON body
-      body: JSON.stringify({
-        click: true,
-      }),
-    }).then((response) => {
-		document.getElementById("user-name").innerText = response.name;
-		console.log(response)
-    });
+    const userId = window.localStorage.getItem("id");
+	console.log(userId);
+    fetch("http://localhost:3000/users/"+userId, {method: 'GET'})
+      .then((response) => response.json())
+      .then((response) => {
+        document.getElementById("user-name").innerHTML = response.name;
+		// console.log(response);
+      })
+      .catch((err) => console.error(err));
   </script>
 </html>
