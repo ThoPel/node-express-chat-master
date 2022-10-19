@@ -76,4 +76,12 @@ module.exports = function(app, server) {
       res.status(400).json({error})
     })
   });
+  
+  app.delete("/messages/:id", (req, res, next) => {
+    schemaMessage
+      .deleteOne({ _id: req.params.id })
+      .then(() => res.status(200).json({ message: "Message supprimé" }))
+      .catch((error) => res.status(400).json({ error }));
+  });
+  
 };
