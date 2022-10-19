@@ -4,4 +4,4 @@ const userSchema = mongoose.Schema({
   name: { type: String, required: true },
 });
 
-module.exports = mongoose.model('Message', userSchema);
+module.exports = mongoose.model('User', userSchema);

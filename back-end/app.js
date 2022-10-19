@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const schemaMessage = require("./models/message");
+const schemaUser = require("./models/user");
 
 // export one function that gets called once as the server is being initialized
 module.exports = function(app, server) {
@@ -44,5 +45,35 @@ module.exports = function(app, server) {
       .find()
       .then((messages) => res.status(200).json(messages))
       .catch((error) => res.status(400).json({ error }));
+  });
+
+  app.post('/messages/new', (req, res, next) => {
+    const message = new schemaMessage({...req.body});
+    message.save().then(() => {
+      res.status(201).json({
+        message: 'Message envoyé'
+      })
+    }).catch((error) => {
+      res.status(400).json({error})
+    })
+  });
+
+
+  app.get("/users", (req, res, next) => {
+    schemaUser
+      .find()
+      .then((users) => res.status(200).json(users))
+      .catch((error) => res.status(400).json({ error }));
+  });
+
+  app.post('/users/new', (req, res, next) => {
+    const user = new schemaUser({...req.body});
+    user.save().then(() => {
+      res.status(201).json({
+        message: 'Utilisateur créé'
+      })
+    }).catch((error) => {
+      res.status(400).json({error})
+    })
   });
 };
